@@ -6,7 +6,9 @@ plugins {
 
 android {
     namespace = "com.wuji.wuji_suinian"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android 14.1.0 要求 compileSdk ≥ 37（Android 17），
+    // AGP 需 9.1.1+ 才官方支持 37；targetSdk / minSdk 保持不变，不影响运行行为。
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

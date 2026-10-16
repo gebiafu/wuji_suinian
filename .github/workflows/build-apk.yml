@@ -66,6 +66,11 @@ jobs:
       - name: 运行测试
         run: flutter test
 
+      # compileSdk 37（permission_handler_android 14.1.0 要求）需要 android-37 平台包；
+      # runner 未预装时 AGP 会自动下载，这里显式预装以加速；失败不阻塞（兜底交给 AGP）
+      - name: 预装 Android Platform 37
+        run: sdkmanager --install "platforms;android-37" > /dev/null 2>&1 || true
+
       - name: 构建 Release APK
         run: flutter build apk --release
 
