@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../app/providers.dart';
+import '../../data/services/webdav/webdav_client.dart';
 import '../../domain/models/backup_models.dart';
 import '../items/items_controller.dart';
 import '../notes/notes_controller.dart';
@@ -47,7 +48,7 @@ Future<T?> _runBusy<T>(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('操作失败'),
-          content: Text('$error'),
+          content: Text(describeNetworkError(error)),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context),

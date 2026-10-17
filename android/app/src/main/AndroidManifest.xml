@@ -1,5 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- 需求「权限按需申请」：这里只声明不会再运行时一次性弹出的权限清单。 -->
+    <!-- 联网（WebDAV 备份 / 同步）：Flutter 模板只在 debug/profile 清单里声明，
+         release 包必须在此显式声明，否则所有网络请求都会 DNS 解析失败。 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- 读取当前网络状态（判断是否在 Wi-Fi 下同步 / 给出更准确的失败提示） -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <!-- Android 13+ 读取相册图片 -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>

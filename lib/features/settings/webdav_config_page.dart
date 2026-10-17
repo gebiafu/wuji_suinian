@@ -199,7 +199,7 @@ class _WebdavConfigEditPageState extends ConsumerState<WebdavConfigEditPage> {
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('连接失败：$error')));
+            .showSnackBar(SnackBar(content: Text('连接失败：${describeNetworkError(error)}')));
       }
     } finally {
       if (mounted) setState(() => _testing = false);

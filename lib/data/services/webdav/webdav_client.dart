@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -6,6 +7,33 @@ import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
 import '../../../domain/models/backup_models.dart';
+
+/// 把底层网络异常翻译成用户能看懂、能照着排查的提示。
+///
+/// 背景：如果 release 包漏声明 `INTERNET` 权限，Android 上表现为 DNS 解析失败
+/// （Failed host lookup），与「真的没网」很难区分，因此这里给出可操作的排查项。
+String describeNetworkError(Object error) {
+  if (error is SocketException) {
+    final message = error.message.toLowerCase();
+    if (message.contains('failed host lookup') ||
+        message.contains('no address') ||
+        message.contains('nodename nor servname')) {
+      return '无法解析服务器域名（${error.message}）。\n'
+          '请依次检查：\n'
+          '1) 手机是否已连接网络（Wi-Fi / 流量）；\n'
+          '2) 服务器地址是否填写正确；\n'
+          '3) 若开启了代理或 VPN，请确认它能解析该域名。';
+    }
+    return '网络连接失败：${error.message}';
+  }
+  if (error is HandshakeException) {
+    return 'TLS 握手失败，请确认服务器地址是 https 且证书有效：${error.message}';
+  }
+  if (error is TimeoutException) {
+    return '连接超时，请检查网络后重试。';
+  }
+  return '$error';
+}
 
 /// WebDAV 请求异常。
 class WebdavException implements Exception {
