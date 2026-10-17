@@ -28,6 +28,10 @@ class ItemFilterNotifier extends Notifier<ItemFilter> {
       ? state.copyWith(clearStatus: true)
       : state.copyWith(status: status);
 
+  void setWarranty(WarrantyFilter? warranty) => state = warranty == null
+      ? state.copyWith(clearWarranty: true)
+      : state.copyWith(warranty: warranty);
+
   void setSort(ItemSort sort) => state = state.copyWith(sort: sort);
 
   void toggleTag(int tagId) {
@@ -58,6 +62,10 @@ class ItemsController extends AsyncNotifier<List<ItemWithImages>> {
 
   Future<void> _reload() async {
     ref.invalidateSelf();
+    // 同步失效其它依赖物品数据的 provider：
+    // 修复「编辑（含新增图片）后详情页仍显示旧数据，需退出重进才刷新」的问题。
+    ref.invalidate(itemDetailProvider);
+    ref.invalidate(locationsProvider);
     await future;
   }
 

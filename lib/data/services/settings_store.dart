@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/models/backup_models.dart';
 import '../../domain/models/settings.dart';
+import '../../core/theme/app_theme.dart';
 
 /// 设置持久化（shared_preferences）。
 ///
@@ -15,6 +16,7 @@ class SettingsStore {
   final SharedPreferences _prefs;
 
   static const String _kThemeMode = 'theme_mode';
+  static const String _kThemePreset = 'theme_preset';
   static const String _kFontScale = 'font_scale';
   static const String _kSnapshotKeep = 'snapshot_keep';
   static const String _kAutoBackupBackground = 'auto_backup_background';
@@ -31,6 +33,7 @@ class SettingsStore {
   AppSettings read() {
     return AppSettings(
       themeMode: _readThemeMode(),
+      themePreset: AppThemePreset.fromValue(_prefs.getString(_kThemePreset)),
       fontScale: _prefs.getDouble(_kFontScale) ?? 1.0,
       snapshotKeep: _prefs.getInt(_kSnapshotKeep) ?? 5,
       autoBackupOnBackground:
@@ -48,6 +51,7 @@ class SettingsStore {
 
   Future<void> write(AppSettings settings) async {
     await _prefs.setString(_kThemeMode, settings.themeMode.name);
+    await _prefs.setString(_kThemePreset, settings.themePreset.value);
     await _prefs.setDouble(_kFontScale, settings.fontScale);
     await _prefs.setInt(_kSnapshotKeep, settings.snapshotKeep);
     await _prefs.setBool(_kAutoBackupBackground, settings.autoBackupOnBackground);

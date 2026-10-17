@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_theme.dart';
+
 /// App 设置（本地 shared_preferences 存储）。
 @immutable
 class AppSettings {
   const AppSettings({
     this.themeMode = ThemeMode.system,
+    this.themePreset = AppThemePreset.defaultTheme,
     this.fontScale = 1.0,
     this.snapshotKeep = 5,
     this.autoBackupOnBackground = false,
@@ -19,6 +22,9 @@ class AppSettings {
   });
 
   final ThemeMode themeMode;
+
+  /// 配色预设（樱花粉 / 天空蓝 / 毛玻璃等，与明暗模式正交）
+  final AppThemePreset themePreset;
   final double fontScale;
 
   /// 远端保留快照份数：3 / 5 / 10
@@ -45,6 +51,7 @@ class AppSettings {
 
   AppSettings copyWith({
     ThemeMode? themeMode,
+    AppThemePreset? themePreset,
     double? fontScale,
     int? snapshotKeep,
     bool? autoBackupOnBackground,
@@ -60,6 +67,7 @@ class AppSettings {
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
+      themePreset: themePreset ?? this.themePreset,
       fontScale: fontScale ?? this.fontScale,
       snapshotKeep: snapshotKeep ?? this.snapshotKeep,
       autoBackupOnBackground:
@@ -82,6 +90,7 @@ class AppSettings {
   bool operator ==(Object other) =>
       other is AppSettings &&
       other.themeMode == themeMode &&
+      other.themePreset == themePreset &&
       other.fontScale == fontScale &&
       other.snapshotKeep == snapshotKeep &&
       other.autoBackupOnBackground == autoBackupOnBackground &&
@@ -97,6 +106,7 @@ class AppSettings {
   @override
   int get hashCode => Object.hash(
         themeMode,
+        themePreset,
         fontScale,
         snapshotKeep,
         autoBackupOnBackground,

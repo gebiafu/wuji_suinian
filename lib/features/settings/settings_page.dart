@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/time_utils.dart';
 import 'about_page.dart';
 import 'backup_center_page.dart';
@@ -49,6 +50,24 @@ class SettingsPage extends ConsumerWidget {
                 DropdownMenuItem(value: ThemeMode.system, child: Text('跟随系统')),
                 DropdownMenuItem(value: ThemeMode.light, child: Text('浅色')),
                 DropdownMenuItem(value: ThemeMode.dark, child: Text('深色')),
+              ],
+            ),
+          ),
+          // 配色预设与明暗模式正交：樱花粉 / 天空蓝 / 毛玻璃等
+          ListTile(
+            title: const Text('主题风格'),
+            subtitle: const Text('樱花粉 / 天空蓝 / 毛玻璃…'),
+            trailing: DropdownButton<AppThemePreset>(
+              value: settings.themePreset,
+              underline: const SizedBox.shrink(),
+              onChanged: (preset) {
+                if (preset != null) {
+                  ref.read(settingsProvider.notifier).setThemePreset(preset);
+                }
+              },
+              items: <DropdownMenuItem<AppThemePreset>>[
+                for (final preset in AppThemePreset.values)
+                  DropdownMenuItem(value: preset, child: Text(preset.label)),
               ],
             ),
           ),

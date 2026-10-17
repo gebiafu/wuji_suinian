@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 物记碎念 · 应用图标源文件
+       设计：墨绿渐变圆角底（呼应默认主题），
+       左下白色收纳盒（物记），右上三点聊天气泡（碎念）。 -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3E948A"/>
+      <stop offset="1" stop-color="#22564F"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 圆角方形背景（squircle 风格，圆角率约 23%） -->
+  <rect x="0" y="0" width="512" height="512" rx="118" fill="url(#bg)"/>
+
+  <!-- 收纳盒：盒盖（上宽） -->
+  <rect x="116" y="268" width="232" height="68" rx="18" fill="#FFFFFF"/>
+  <!-- 盒身（下窄，与盒盖间留 4px 缝隙露背景色，形成层次） -->
+  <rect x="133" y="340" width="198" height="88" rx="16" fill="#FFFFFF"/>
+  <!-- 抽屉把手 -->
+  <rect x="198" y="376" width="68" height="16" rx="8" fill="#2A6B64"/>
+
+  <!-- 碎碎念气泡 -->
+  <rect x="294" y="124" width="124" height="92" rx="28" fill="#FFFFFF"/>
+  <!-- 气泡小尾巴 -->
+  <circle cx="306" cy="226" r="13" fill="#FFFFFF"/>
+  <!-- 三个点：正在碎碎念 -->
+  <circle cx="332" cy="170" r="9" fill="#2A6B64"/>
+  <circle cx="356" cy="170" r="9" fill="#2A6B64"/>
+  <circle cx="380" cy="170" r="9" fill="#2A6B64"/>
+</svg>

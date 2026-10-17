@@ -1,5 +1,17 @@
 import 'item_sort.dart';
 
+/// 质保筛选（物品列表「状态」筛选的扩展选项，动态计算，非入库字段）。
+enum WarrantyFilter {
+  /// 质保临期：未过期且剩余天数在提醒窗口内（默认 30 天）
+  expiring('质保临期'),
+
+  /// 质保已到期
+  expired('质保已到期');
+
+  const WarrantyFilter(this.label);
+  final String label;
+}
+
 /// 物品列表筛选条件。
 class ItemFilter {
   const ItemFilter({
@@ -7,6 +19,7 @@ class ItemFilter {
     this.categoryId,
     this.location,
     this.status,
+    this.warranty,
     this.tagIds = const <int>[],
     this.sort = ItemSort.createdDesc,
   });
@@ -15,6 +28,9 @@ class ItemFilter {
   final int? categoryId;
   final String? location;
   final String? status;
+
+  /// 质保状态筛选（与生命周期状态筛选可叠加）
+  final WarrantyFilter? warranty;
   final List<int> tagIds;
   final ItemSort sort;
 
@@ -23,6 +39,7 @@ class ItemFilter {
       categoryId != null ||
       (location != null && location!.isNotEmpty) ||
       status != null ||
+      warranty != null ||
       tagIds.isNotEmpty;
 
   ItemFilter copyWith({
@@ -30,17 +47,20 @@ class ItemFilter {
     int? categoryId,
     String? location,
     String? status,
+    WarrantyFilter? warranty,
     List<int>? tagIds,
     ItemSort? sort,
     bool clearCategory = false,
     bool clearLocation = false,
     bool clearStatus = false,
+    bool clearWarranty = false,
   }) {
     return ItemFilter(
       keyword: keyword ?? this.keyword,
       categoryId: clearCategory ? null : (categoryId ?? this.categoryId),
       location: clearLocation ? null : (location ?? this.location),
       status: clearStatus ? null : (status ?? this.status),
+      warranty: clearWarranty ? null : (warranty ?? this.warranty),
       tagIds: tagIds ?? this.tagIds,
       sort: sort ?? this.sort,
     );
@@ -53,6 +73,7 @@ class ItemFilter {
       other.categoryId == categoryId &&
       other.location == location &&
       other.status == status &&
+      other.warranty == warranty &&
       _listEquals(other.tagIds, tagIds) &&
       other.sort == sort;
 
@@ -62,6 +83,7 @@ class ItemFilter {
         categoryId,
         location,
         status,
+        warranty,
         Object.hashAll(tagIds),
         sort,
       );

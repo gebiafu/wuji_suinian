@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/paths/app_paths.dart';
+import '../core/theme/app_theme.dart';
 import '../data/db/database.dart';
 import '../data/repositories/item_repository.dart';
 import '../data/repositories/note_repository.dart';
@@ -115,6 +116,9 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   Future<void> setThemeMode(ThemeMode mode) =>
       patch((s) => s.copyWith(themeMode: mode));
+
+  Future<void> setThemePreset(AppThemePreset preset) =>
+      patch((s) => s.copyWith(themePreset: preset));
 
   Future<void> setFontScale(double scale) =>
       patch((s) => s.copyWith(fontScale: scale));

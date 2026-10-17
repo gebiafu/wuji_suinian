@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/constants/app_constants.dart';
@@ -55,8 +56,16 @@ class _WujiAppState extends ConsumerState<WujiApp> {
     return MaterialApp(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      // Material 组件中文化：日期选择器 / 对话框按钮等跟随系统语言，
+      // 中文系统显示「年月日」「取消 / 确定」。
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const <Locale>[Locale('zh'), Locale('en')],
+      theme: AppTheme.forPreset(settings.themePreset, Brightness.light),
+      darkTheme: AppTheme.forPreset(settings.themePreset, Brightness.dark),
       themeMode: settings.themeMode,
       builder: (context, child) {
         final media = MediaQuery.of(context);

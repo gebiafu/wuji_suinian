@@ -5,8 +5,7 @@ import '../../app/providers.dart';
 import '../../data/db/database.dart';
 import '../../domain/models/filters.dart';
 import '../../domain/models/item_sort.dart';
-import '../../domain/models/item_status.dart';
-import '../common/widgets/empty_state.dart';
+import '../../domain/models/item_status.dart';import '../common/widgets/empty_state.dart';
 import '../search/global_search_page.dart';
 import 'item_detail_page.dart';
 import 'item_form_page.dart';
@@ -69,34 +68,52 @@ class ItemsPage extends ConsumerWidget {
           Expanded(
             child: itemsValue.when(
               data: (items) {
+                // 下拉刷新：列表与空状态均可触发（需求 1）
+                Future<void> onRefresh() =>
+                    ref.read(itemsControllerProvider.notifier).refresh();
                 if (items.isEmpty) {
-                  return EmptyState(
-                    icon: Icons.inventory_2_outlined,
-                    title: filter.hasFilter ? '没有符合条件的物品' : '还没有物品',
-                    subtitle: filter.hasFilter
-                        ? '试试清空筛选条件'
-                        : '点击右下角按钮，拍照并录入你的第一件物品',
-                    actionLabel: '新增物品',
-                    onAction: () => _openForm(context),
+                  return RefreshIndicator(
+                    onRefresh: onRefresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: <Widget>[
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.55,
+                          child: EmptyState(
+                            icon: Icons.inventory_2_outlined,
+                            title: filter.hasFilter ? '没有符合条件的物品' : '还没有物品',
+                            subtitle: filter.hasFilter
+                                ? '试试清空筛选条件'
+                                : '点击右下角按钮，拍照并录入你的第一件物品',
+                            actionLabel: '新增物品',
+                            onAction: () => _openForm(context),
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 }
-                return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
-                  itemCount: items.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final entry = items[index];
-                    return ItemCard(
-                      entry: entry,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (context) =>
-                              ItemDetailPage(itemId: entry.item.id),
+                return RefreshIndicator(
+                  onRefresh: onRefresh,
+                  child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
+                    itemCount: items.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final entry = items[index];
+                      return ItemCard(
+                        entry: entry,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) =>
+                                ItemDetailPage(itemId: entry.item.id),
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 );
               },
               loading: () => const LoadingState(label: '正在加载物品…'),
@@ -198,41 +215,41 @@ class _ItemFilterBar extends ConsumerWidget {
           Center(
             child: ActionChip(
               avatar: const Icon(Icons.tune, size: 16),
-              label: Text(
-                filter.status == null
-                    ? '状态'
-                    : '状态：${ItemStatus.fromValue(filter.status).label}',
-              ),
+              label: Text(_statusLabel(filter)),
               onPressed: () async {
-                final selected = await showModalBottomSheet<_Option<String?>>(
+                final selected =
+                    await showModalBottomSheet<_Option<_StatusSelection>>(
                   context: context,
                   showDragHandle: true,
-                  builder: (context) => _OptionSheet<String?>(
+                  builder: (context) => _OptionSheet<_StatusSelection>(
                     title: '按状态筛选',
-                    options: <_Option<String?>>[
-                      const _Option<String?>(value: null, label: '全部状态'),
+                    options: <_Option<_StatusSelection>>[
+                      const _Option<_StatusSelection>(
+                        value: _StatusSelection(null, null),
+                        label: '全部状态',
+                      ),
                       for (final status in ItemStatus.values)
-                        _Option<String?>(value: status.value, label: status.label),
+                        _Option<_StatusSelection>(
+                          value: _StatusSelection(status.value, null),
+                          label: status.label,
+                        ),
+                      const _Option<_StatusSelection>(
+                        value: _StatusSelection(null, WarrantyFilter.expiring),
+                        label: '质保临期（30 天内）',
+                      ),
+                      const _Option<_StatusSelection>(
+                        value: _StatusSelection(null, WarrantyFilter.expired),
+                        label: '质保已到期',
+                      ),
                     ],
                   ),
                 );
                 if (selected == null) return;
-                controller.setStatus(selected.value);
+                controller.setStatus(selected.value.status);
+                controller.setWarranty(selected.value.warranty);
               },
             ),
           ),
-          const SizedBox(width: 8),
-          for (final tag in tags)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: Center(
-                child: FilterChip(
-                  label: Text('#${tag.name}'),
-                  selected: filter.tagIds.contains(tag.id),
-                  onSelected: (_) => controller.toggleTag(tag.id),
-                ),
-              ),
-            ),
           if (filter.hasFilter)
             Center(
               child: TextButton.icon(
@@ -245,6 +262,22 @@ class _ItemFilterBar extends ConsumerWidget {
       ),
     );
   }
+
+  static String _statusLabel(ItemFilter filter) {
+    if (filter.warranty != null) return '状态：${filter.warranty!.label}';
+    if (filter.status != null) {
+      return '状态：${ItemStatus.fromValue(filter.status).label}';
+    }
+    return '状态';
+  }
+}
+
+/// 状态筛选的组合值：生命周期状态与质保状态可叠加。
+class _StatusSelection {
+  const _StatusSelection(this.status, this.warranty);
+
+  final String? status;
+  final WarrantyFilter? warranty;
 }
 
 class _Option<T> {

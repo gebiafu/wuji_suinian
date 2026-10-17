@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../core/constants/app_constants.dart';
 import '../../core/utils/time_utils.dart';
 import '../../domain/models/filters.dart';
 import '../../domain/models/item_sort.dart';
@@ -57,13 +58,19 @@ class ItemRepository {
   final ImageService imageService;
 
   Future<List<ItemWithImages>> list(ItemFilter filter) async {
-    final rows = await db.itemsDao.findItems(
+    var rows = await db.itemsDao.findItems(
       keyword: filter.keyword,
       categoryId: filter.categoryId,
       location: filter.location,
       status: filter.status,
       tagIds: filter.tagIds,
     );
+    // 质保筛选为动态计算（不入库），在内存中按天粒度过滤，
+    // 口径与 ItemWithImages.daysToWarrantyEnd 一致。
+    if (filter.warranty != null) {
+      rows =
+          rows.where((e) => _matchWarranty(e, filter.warranty!)).toList();
+    }
     final sorted = sortItems(rows, filter.sort);
     return _decorate(sorted);
   }
@@ -94,6 +101,23 @@ class ItemRepository {
           ),
         )
         .toList();
+  }
+
+  /// 质保筛选匹配：临期 = 未过期且剩余天数 <= 提醒窗口；到期 = 剩余天数 < 0。
+  static bool _matchWarranty(Item item, WarrantyFilter warranty) {
+    final endMs = item.warrantyEndDate;
+    if (endMs == null) return false;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime.fromMillisecondsSinceEpoch(endMs);
+    final days = DateTime(target.year, target.month, target.day)
+        .difference(today)
+        .inDays;
+    return switch (warranty) {
+      WarrantyFilter.expired => days < 0,
+      WarrantyFilter.expiring =>
+        days >= 0 && days <= AppConstants.warrantyReminderDays,
+    };
   }
 
   static List<Item> sortItems(List<Item> rows, ItemSort sort) {

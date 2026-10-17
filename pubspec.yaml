@@ -31,6 +31,10 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Material 组件中文化（日期选择器 / 弹窗按钮等）
+  flutter_localizations:
+    sdk: flutter
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -76,6 +80,10 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # 应用图标（design/app_icon.svg 的光栅化产物，关于页展示用）
+  assets:
+    - assets/app_icon.png
 
 # package:sqlite3 3.x 通过原生构建钩子（native assets）在构建时下载预编译的 SQLite。
 # 本地开发 / 单元测试环境（Windows）无法访问 GitHub Releases 时，

@@ -99,6 +99,9 @@ class _ItemFormPageState extends ConsumerState<ItemFormPage> {
       initialDate: current ?? now,
       firstDate: DateTime(now.year - 30),
       lastDate: DateTime(now.year + 30),
+      helpText: '选择日期',
+      confirmText: '确定',
+      cancelText: '取消',
     );
     if (picked != null) onPicked(picked);
   }
